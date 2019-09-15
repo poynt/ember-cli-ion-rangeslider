@@ -5,6 +5,7 @@ import {
 
 moduleForComponent('ember-ion-rangeslider', {
   // specify the other units that are required for this test
+  needs: []
   // needs: ['component:foo', 'helper:bar']
 });
 

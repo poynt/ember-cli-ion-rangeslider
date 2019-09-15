@@ -1,5 +1,6 @@
-import Ember from 'ember';
-var computed = Ember.computed;
+import { computed } from '@ember/object';
+import Mixin from '@ember/object/mixin';
+import { addObserver, removeObserver } from '@ember/object/observers';
 
 var ionProperties = {
     type               : 'single',
@@ -43,7 +44,7 @@ var ionProperties = {
     disabled           : false
 };
 
-export default Ember.Mixin.create({
+export default Mixin.create({
 
   ionReadOnlyOptions: computed(function(){
     var ionOptions = {};
@@ -53,18 +54,18 @@ export default Ember.Mixin.create({
     return ionOptions;
   }).readOnly(),
 
-  _startObserving: function(){
+  didInsertElement(){
     var options = this.get('ionReadOnlyOptions');
     for (var optName in options){
-      Ember.addObserver(this, optName, this, '_readOnlyPropertiesChanged');
+      addObserver(this, optName, this, '_readOnlyPropertiesChanged');
     }
-  }.on('didInsertElement'),
+  },
 
-  _stopObserving: function() {
+  willDestroyElement() {
     var options = this.get('ionReadOnlyOptions');
     for (var optName in options){
-      Ember.removeObserver(this, optName, this, '_readOnlyPropertiesChanged');
+      removeObserver(this, optName, this, '_readOnlyPropertiesChanged');
     }
-  }.on('willDestroyElement')
+  }
 
 });

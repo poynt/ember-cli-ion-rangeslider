@@ -1,16 +1,18 @@
-import Ember from 'ember';
-import IonSlider from './mixins/ion-slider';
+import IonSlider from '../mixins/ion-slider';
+import { get } from '@ember/object';
+import { observer } from '@ember/object';
+import { merge } from '@ember/polyfills';
+import Component from '@ember/component';
+import { computed } from '@ember/object';
+import { bind, debounce } from '@ember/runloop';
 
-var get = Ember.get;
-var merge = Ember.merge;
-
-export default Ember.Component.extend(IonSlider, {
+export default Component.extend(IonSlider, {
   tagName: 'input',
   classNames: ['ember-ion-rangeslider'],
   type: 'single', //## explicit, waiting for this.attr.type
   _slider: null,
 
-  sliderOptions: Ember.computed(function(){
+  sliderOptions: computed(function(){
     //## Update trigger: change|finish
     var updateTrigger = get(this, 'updateTrigger') || 'finish',
         throttleTimeout = get(this, 'throttleTimeout') || 50,
@@ -20,7 +22,7 @@ export default Ember.Component.extend(IonSlider, {
           to: 10,
           from: 100,
           onChange() {},
-          onFinish: Ember.run.bind(this, '_sliderDidFinish'),
+          onFinish: bind(this, '_sliderDidFinish'),
         };
 
     if (from || from === 0) {
@@ -31,7 +33,7 @@ export default Ember.Component.extend(IonSlider, {
     }
     //## Setup change update trigger
     if (updateTrigger === 'change') {
-      options.onChange = Ember.run.bind(this, '_sliderDidChange', throttleTimeout);
+      options.onChange = bind(this, '_sliderDidChange', throttleTimeout);
       options.onFinish = function() {};
     }
     merge(options, this.get('ionReadOnlyOptions'));
@@ -39,20 +41,18 @@ export default Ember.Component.extend(IonSlider, {
   }).readOnly(),
 
   //## Setup/destroy
-  setupRangeSlider: function(){
+  didInsertElement(){
     var options = get(this, 'sliderOptions');
     this.$().ionRangeSlider(options);
     this._slider = this.$().data('ionRangeSlider');
+  },
 
-  }.on('didInsertElement'),
-
-  destroyRangeSlider: function(){
+  willDestroyElement(){
     this._slider.destroy();
-
-  }.on('willDestroyElement'),
+  },
 
   //## Bound values observers
-  _onToFromPropertiesChanged: Ember.observer(
+  _onToFromPropertiesChanged: observer(
     'to', 'from',
     function(){
       var propName = arguments[1];
@@ -72,7 +72,7 @@ export default Ember.Component.extend(IonSlider, {
 
   _sliderDidChange: function(throttleTimeout, changes){
     var args = {'to': changes.to, 'from': changes.from };
-    Ember.run.debounce(this, this.setProperties, args, throttleTimeout);
+    debounce(this, this.setProperties, args, throttleTimeout);
   },
   _sliderDidFinish: function(changes){
     this.setProperties({'to': changes.to, 'from': changes.from});
