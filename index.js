@@ -1,12 +1,13 @@
 /* jshint node: true */
 'use strict';
 
-var packagedSkins = {
-  'flat':   ['skinFlat.css', 'sprite-skin-flat.png'],
-  'html5':  ['skinHTML5.css', null],
-  'modern': ['skinModern.css', 'sprite-skin-modern.png'],
-  'nice':   ['skinNice.css', 'sprite-skin-nice.png'],
-  'simple': ['skinSimple.css', 'sprite-skin-simple.png']
+const packagedSkins = {
+  'flat':   ['flat.less'],
+  'big':    ['big.less'],
+  'modern': ['modern.less'],
+  'round':  ['round.less'],
+  'sharp':  ['sharp.less'],
+  'square':  ['square.less'],
 };
 
 module.exports = {
@@ -18,16 +19,10 @@ module.exports = {
 
   importSkin: function(skin, app){
     var skinAssets = packagedSkins[skin.toLowerCase()] || [null, null],
-        style = skinAssets[0],
-        img = skinAssets[1];
+        style = skinAssets[0];
 
     if (style){
       app.import(app.bowerDirectory + '/ionrangeslider/css/ion.rangeSlider.' + style);
-    }
-    if (img){
-      app.import(app.bowerDirectory + '/ionrangeslider/img/' + img, {
-        destDir: 'img'
-      });
     }
   },
 

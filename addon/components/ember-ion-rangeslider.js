@@ -1,16 +1,85 @@
-import IonSlider from '../mixins/ion-slider';
 import { get } from '@ember/object';
 import { observer } from '@ember/object';
+import { addObserver, removeObserver } from '@ember/object/observers';
 import { merge } from '@ember/polyfills';
 import Component from '@ember/component';
 import { computed } from '@ember/object';
 import { bind, debounce } from '@ember/runloop';
 
-export default Component.extend(IonSlider, {
+const ionProperties = {
+  skin               : 'round',
+  type               : 'single',
+  values             : [],
+  min                : 10,
+  max                : 100,
+  step               : 1,
+  min_interval       : null,
+  max_interval       : null,
+  drag_interval      : false,
+
+  from_fixed         : false,
+  from_min           : 10,
+  from_max           : 100,
+  from_shadow        : false,
+  to_fixed           : false,
+  to_min             : 10,
+  to_max             : 100,
+  to_shadow          : false,
+
+  prettify_enabled   : true,
+  prettify_separator : ' ',
+  prettify           : null,
+
+  force_edges        : false,
+  keyboard           : false,
+  keyboard_step      : 5,
+
+  grid               : false,
+  grid_margin        : true,
+  grid_num           : 4,
+  grid_snap          : false,
+  hide_min_max       : false,
+  hide_from_to       : false,
+
+  prefix             : '',
+  postfix            : '',
+  max_postfix        : '',
+  decorate_both      : true,
+  values_separator   : ' - ',
+  disabled           : false
+};
+
+export default Component.extend({
   tagName: 'input',
   classNames: ['ember-ion-rangeslider'],
   type: 'single', //## explicit, waiting for this.attr.type
   _slider: null,
+
+  ionReadOnlyOptions(){
+    var ionOptions = {};
+    for (var pName in ionProperties){
+      ionOptions[pName] = this.getWithDefault(pName, ionProperties[pName]);
+    }
+    return ionOptions;
+  },
+
+  didInsertElement(){
+    let options = this.ionReadOnlyOptions();
+    this.$().ionRangeSlider(options);
+    this._slider = this.$().data('ionRangeSlider');
+
+    for (var optName in options){
+      addObserver(this, optName, this, '_readOnlyPropertiesChanged');
+    }
+  },
+
+  willDestroyElement() {
+    let options = this.ionReadOnlyOptions();
+    for (var optName in options){
+      removeObserver(this, optName, this, '_readOnlyPropertiesChanged');
+    }
+    this._slider.destroy();
+  },
 
   sliderOptions: computed(function(){
     //## Update trigger: change|finish
@@ -36,22 +105,14 @@ export default Component.extend(IonSlider, {
       options.onChange = bind(this, '_sliderDidChange', throttleTimeout);
       options.onFinish = function() {};
     }
-    merge(options, this.get('ionReadOnlyOptions'));
+
+    merge(options, this.ionReadOnlyOptions());
     return options;
   }).readOnly(),
 
-  //## Setup/destroy
-  didInsertElement(){
-    var options = get(this, 'sliderOptions');
-    this.$().ionRangeSlider(options);
-    this._slider = this.$().data('ionRangeSlider');
-  },
-
-  willDestroyElement(){
-    this._slider.destroy();
-  },
 
   //## Bound values observers
+  // eslint-disable-next-line ember/no-observers
   _onToFromPropertiesChanged: observer(
     'to', 'from',
     function(){

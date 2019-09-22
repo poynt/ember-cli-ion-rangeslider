@@ -1,9 +1,9 @@
 {
   "name": "ember-cli-ion-rangeslider",
   "dependencies": {
-    "jquery": "^1.11.1"
+    "jquery": "3.4.1"
   },
   "devDependencies": {
-    "ionrangeslider": "~2.0.6"
+    "ionrangeslider": "2.3.0"
   }
 }
