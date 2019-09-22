@@ -15,7 +15,7 @@
     "test:all": "ember try:each"
 
   },
-  "repository": "https://github.com/xomaczar/ember-cli-ion-rangeslider",
+  "repository": "https://github.com/RedisLabs/ember-cli-ion-rangeslider",
   "engines": {
     "node": ">= 4.0.0"
   },
