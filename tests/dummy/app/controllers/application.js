@@ -1,6 +1,6 @@
 import Controller from '@ember/controller';
 
-export default Controller.extend({
-	toValue: 3,
-	fromValue: 8,
-});
+export default class ApplicationController extends Controller {
+	toValue = 3;
+	fromValue = 8;
+};
